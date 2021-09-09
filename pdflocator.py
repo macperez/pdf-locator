@@ -4,7 +4,7 @@ from pdfminer import high_level
 from pdfminer.layout import LTTextBoxHorizontal
 
 # Example search_word = '2-450/750 V'
-
+#Author: macperez
 
 
 def search_in_file(pdf_file, search_word):
@@ -19,21 +19,39 @@ def search_in_file(pdf_file, search_word):
     return found
 
 
+def find(fpath, search_word, path_list):
+    if os.path.isfile(fpath):
+        if '.pdf' in fpath or '.PDF' in fpath:
+            # pdf_path = os.path.join(dire
+            if search_in_file(fpath, search_word):
+                print(f'>> {fpath}')
+                path_list.append(fpath)
+    elif os.path.isdir(fpath):
+        print(f"Explorando directorio: {fpath}")
+        for fi in os.listdir(fpath):
+            new_path = os.path.join(fpath, fi)
+            find(new_path, search_word, path_list)
+
+
+
+
 def main(to_excel, search_word, directory):
     if to_excel:
-        print('Exportando los resultados a un bloc de notas')
         output_file = open('results.txt', 'a')
+    foundpaths = []
+    find(directory, search_word, foundpaths)
+    if len(foundpaths) > 0:
+        for el in foundpaths:
+            if to_excel:
+                output_file.write(el + '\n') 
+            print(el)
+    else: 
+        print('No se ha encontrado ningún fichero con ese texto')    
 
-    for fi in os.listdir(directory):
-        if '.pdf' in fi or '.PDF' in fi:
-            pdf_path = os.path.join(directory, fi)
-            if search_in_file(pdf_path, search_word):
-                output_msg = f'>> {pdf_path}\n'
-                print(output_msg)
-                if to_excel:
-                    output_file.write(output_msg)
-    if to_excel and output_file:
+    if to_excel:
         output_file.close()
+
+    
 
 
 if __name__ == '__main__':
